@@ -1,0 +1,44 @@
+[package]
+name = "rust-afk"
+version = "0.1.0"
+edition = "2021"
+repository = "https://github.com/nekowinston/rust-afk"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum = "0.7.4"
+catppuccin = { version = "2.1.0", features = ["serde"] }
+lazy_static = "1.4.0"
+ril = { version = "0.10.1", features = ["png"] }
+serde = { version = "1.0.197", features = ["derive"] }
+tokio = { version = "1.36.0", features = ["rt-multi-thread"] }
+tracing-subscriber = "0.3.18"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+
+# The profile that 'cargo dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
+
+# Config for 'cargo dist'
+[workspace.metadata.dist]
+# The preferred cargo-dist version to use in CI (Cargo.toml SemVer syntax)
+cargo-dist-version = "0.11.1"
+# CI backends to support
+ci = ["github"]
+# The installers to generate for each app
+installers = []
+# Target platforms to build apps for (Rust target-triple syntax)
+targets = [
+    "aarch64-apple-darwin",
+    "x86_64-apple-darwin",
+    "x86_64-unknown-linux-gnu",
+    "x86_64-pc-windows-msvc",
+]
+# Publish jobs to run in CI
+pr-run-mode = "plan"

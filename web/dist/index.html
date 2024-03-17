@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>rust-afk</title>
+  <link href="/style.css" rel="stylesheet" />
+  <script defer src="//cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="//unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body class="min-h-screen text-text bg-base grid" x-data="{
+  flavor: $persist('mocha'),
+  color: $persist('pink'),
+  italics: $persist(false),
+  text: $persist('Hello World'),
+  flavors: { 'Mocha': 'mocha', 'Macchiato': 'macchiato', 'Frappé': 'frappe', 'Latte': 'latte' },
+  colors: [ 'rosewater', 'flamingo', 'pink', 'mauve', 'red', 'maroon', 'peach', 'yellow', 'green', 'teal', 'sky', 'sapphire', 'blue', 'lavender', 'text' ]
+}" :class="flavor" :style="{colorScheme: flavor === 'latte' ? 'light' : 'dark'}">
+  <div class="max-w-xl mx-auto self-center text-xl">
+    <div class="py-4">
+      <img :src="() => {
+        var url = new URL('/', window.location.origin);
+        url.searchParams.append('f', flavor);
+        url.searchParams.append('c', color);
+        url.searchParams.append('t', text);
+        url.searchParams.append('i', italics);
+        return url;
+      }" class="mx-auto border border-2 border-surface2" />
+      <p>Generate your own AFK status image for Discord (or wherever)</p>
+    </div>
+    <div class="flex gap-4 items-baseline">
+      <input x-model="italics" id="italicise" type="checkbox" class="bg-crust text-pink rounded" />
+      <label for="italicise">Italicise</label>
+    </div>
+    <div></div>
+    <div class="flex justify-around">
+      <div class="flex gap-4 items-baseline">
+        <label for="color">Color</label>
+        <select id="color" x-model="color" class="bg-crust rounded">
+          <template x-for="value of colors">
+            <option x-text="value" :selected="value == color" :value="value"></option>
+          </template>
+        </select>
+      </div>
+      <div class="flex gap-4 items-baseline">
+        <label for="flavor">Flavor</label>
+        <select id="flavor" x-model="flavor" class="bg-crust rounded">
+          <template x-for="[name, value] of Object.entries(flavors)">
+            <option x-text="name" :selected="value == flavor" :value="value"></option>
+          </template>
+        </select>
+      </div>
+    </div>
+    <div class="flex flex-col">
+      <label for="text">Text</label>
+      <textarea x-model.debounce="text" id="text" placeholder="Your text"
+        class="bg-crust rounded focus:ring-rosewater focus:border-rosewater" type="text" />
+    </div>
+  </div>
+</body>
+
+</html>
