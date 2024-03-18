@@ -1,61 +1,13 @@
-use crate::fonts::{FONT_BOLD_ITALIC, FONT_BOLD_REGULAR, FONT_ITALIC, FONT_REGULAR};
+use crate::fonts::AfkFont;
 use catppuccin::{ColorName, FlavorName, PALETTE};
 use pulldown_cmark::{Event, Tag, TagEnd};
-use ril::{text::TextLayout, Draw, Font, Image, Rgba};
+use ril::{text::TextLayout, Draw, Image, Rgba};
 
 const PADDING: (u32, u32) = (200, 200);
 
-struct AfkFont<'a> {
-    pub font: &'a Font,
-    italic: bool,
-    bold: bool,
-}
-
-impl std::fmt::Debug for AfkFont<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("AfkFont")
-            .field("italic", &self.italic)
-            .field("bold", &self.bold)
-            .finish()
-    }
-}
-
-impl<'a> AfkFont<'a> {
-    fn new() -> Self {
-        Self {
-            font: &FONT_REGULAR,
-            italic: false,
-            bold: false,
-        }
-    }
-    pub fn set_italic(&mut self, italic: bool) {
-        self.italic = italic;
-        self.update_font();
-    }
-
-    pub fn set_bold(&mut self, bold: bool) {
-        self.bold = bold;
-        self.update_font();
-    }
-
-    pub fn update_font(&mut self) {
-        self.font = if self.italic {
-            if self.bold {
-                &FONT_BOLD_ITALIC
-            } else {
-                &FONT_ITALIC
-            }
-        } else if self.bold {
-            &FONT_BOLD_REGULAR
-        } else {
-            &FONT_REGULAR
-        }
-    }
-}
-
 pub fn create(text: &str, flavor: FlavorName, color: ColorName) -> Image<Rgba> {
-    let foreground = ctp_rgb_to_ril_rgba(PALETTE[flavor][color].rgb);
-    let background = ctp_rgb_to_ril_rgba(PALETTE[flavor][ColorName::Base].rgb);
+    let foreground = ctp_rgb_to_ril_rgba(flavor, color);
+    let background = ctp_rgb_to_ril_rgba(flavor, ColorName::Base);
 
     // having 0 width or height will cause a panic, so just return a blank image
     if text.is_empty() {
@@ -91,7 +43,7 @@ pub fn create(text: &str, flavor: FlavorName, color: ColorName) -> Image<Rgba> {
                     layout.push_basic_text(
                         font.font,
                         text,
-                        ctp_rgb_to_ril_rgba(PALETTE[flavor][ColorName::Text].rgb),
+                        ctp_rgb_to_ril_rgba(flavor, ColorName::Text),
                     );
                     codefence = None;
                 } else {
@@ -134,7 +86,8 @@ pub fn create(text: &str, flavor: FlavorName, color: ColorName) -> Image<Rgba> {
     img
 }
 
-const fn ctp_rgb_to_ril_rgba(rgb: catppuccin::Rgb) -> ril::Rgba {
+fn ctp_rgb_to_ril_rgba(flavor: FlavorName, color: ColorName) -> ril::Rgba {
+    let rgb = PALETTE[flavor][color].rgb;
     Rgba {
         r: rgb.r,
         g: rgb.g,
