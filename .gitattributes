@@ -1,0 +1,3 @@
+.yarn/**             linguist-vendored  -diff
+nix/yarn-project.nix linguist-generated
+web/dist/*.css       linguist-generated
