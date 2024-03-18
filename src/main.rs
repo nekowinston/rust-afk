@@ -1,6 +1,5 @@
 mod image;
 
-use crate::image::create_image;
 use axum::{extract::Query, http::header, response::IntoResponse, routing::get, Router};
 use catppuccin::{ColorName, FlavorName};
 use serde::{de, Deserialize, Deserializer};
@@ -42,11 +41,13 @@ struct Params {
     color: Option<ColorName>,
 }
 
-fn default_flavor() -> Option<FlavorName> {
+#[allow(clippy::unnecessary_wraps)]
+const fn default_flavor() -> Option<FlavorName> {
     Some(FlavorName::Frappe)
 }
 
-fn default_color() -> Option<ColorName> {
+#[allow(clippy::unnecessary_wraps)]
+const fn default_color() -> Option<ColorName> {
     Some(ColorName::Pink)
 }
 
@@ -82,7 +83,7 @@ where
 
 async fn root(Query(params): Query<Params>) -> axum::response::Result<impl IntoResponse> {
     if params.text.is_some() {
-        let img = create_image(
+        let img = crate::image::create(
             params.text.unwrap().as_str(),
             params.italic,
             params.flavor.unwrap(),

@@ -1,4 +1,5 @@
 /target
+/result
 .pnp.*
 .yarn/*
 !.yarn/patches

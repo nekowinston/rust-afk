@@ -18,9 +18,14 @@ lazy_static! {
     .unwrap();
 }
 
-pub fn create_image(text: &str, italic: bool, flavor: FlavorName, color: ColorName) -> Image<Rgba> {
+pub fn create(text: &str, italic: bool, flavor: FlavorName, color: ColorName) -> Image<Rgba> {
     let foreground = ctp_rgb_to_ril_rgba(PALETTE[flavor][color].rgb);
     let background = ctp_rgb_to_ril_rgba(PALETTE[flavor][ColorName::Base].rgb);
+
+    // having 0 width or height will cause a panic, so just return a blank image
+    if text.is_empty() {
+        return Image::new(PADDING.0, PADDING.1, background);
+    }
 
     let font: Font = if italic {
         FONT_ITALIC.to_owned()
@@ -30,7 +35,15 @@ pub fn create_image(text: &str, italic: bool, flavor: FlavorName, color: ColorNa
 
     let layout = TextLayout::new().with_basic_text(&font, text, foreground);
 
-    let (width, height) = layout.dimensions();
+    let (mut width, mut height) = layout.dimensions();
+
+    if width == 0 {
+        width = 1;
+    }
+    if height == 0 {
+        height = 1;
+    }
+
     let mut text_image = Image::new(width, height, Rgba::transparent());
     layout.draw(&mut text_image);
 
@@ -42,7 +55,7 @@ pub fn create_image(text: &str, italic: bool, flavor: FlavorName, color: ColorNa
     img
 }
 
-fn ctp_rgb_to_ril_rgba(rgb: catppuccin::Rgb) -> ril::Rgba {
+const fn ctp_rgb_to_ril_rgba(rgb: catppuccin::Rgb) -> ril::Rgba {
     Rgba {
         r: rgb.r,
         g: rgb.g,

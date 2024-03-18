@@ -8,8 +8,8 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <title>rust-afk</title>
   <link href="/style.css" rel="stylesheet" />
-  <script defer src="//cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
-  <script defer src="//unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="//cdn.jsdelivr.net/npm/@alpinejs/persist@3.13/dist/cdn.min.js"></script>
+  <script defer src="//cdn.jsdelivr.net/npm/alpinejs@3.13/dist/cdn.min.js"></script>
 </head>
 
 <body class="min-h-screen text-text bg-base grid" x-data="{
@@ -18,18 +18,19 @@
   italics: $persist(false),
   text: $persist('Hello World'),
   flavors: { 'Mocha': 'mocha', 'Macchiato': 'macchiato', 'Frappé': 'frappe', 'Latte': 'latte' },
-  colors: [ 'rosewater', 'flamingo', 'pink', 'mauve', 'red', 'maroon', 'peach', 'yellow', 'green', 'teal', 'sky', 'sapphire', 'blue', 'lavender', 'text' ]
-}" :class="flavor" :style="{colorScheme: flavor === 'latte' ? 'light' : 'dark'}">
+  colors: [ 'rosewater', 'flamingo', 'pink', 'mauve', 'red', 'maroon', 'peach', 'yellow', 'green', 'teal', 'sky', 'sapphire', 'blue', 'lavender', 'text' ],
+  imgSrc: function() {
+    var url = new URL('/', window.location.origin);
+    url.searchParams.append('f', this.flavor);
+    url.searchParams.append('c', this.color);
+    url.searchParams.append('t', this.text);
+    url.searchParams.append('i', this.italics);
+    return url;
+  }
+}" :class="flavor">
   <div class="max-w-xl mx-auto self-center text-xl">
     <div class="py-4">
-      <img :src="() => {
-        var url = new URL('/', window.location.origin);
-        url.searchParams.append('f', flavor);
-        url.searchParams.append('c', color);
-        url.searchParams.append('t', text);
-        url.searchParams.append('i', italics);
-        return url;
-      }" class="mx-auto border border-2 border-surface2" />
+      <img :src="imgSrc" class="mx-auto border-2 border-surface2" />
       <p>Generate your own AFK status image for Discord (or wherever)</p>
     </div>
     <div class="flex gap-4 items-baseline">
