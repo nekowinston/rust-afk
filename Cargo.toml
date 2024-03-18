@@ -13,8 +13,12 @@ nursery = "warn"
 axum = "0.7.4"
 catppuccin = { version = "2.1.0", features = ["serde"] }
 lazy_static = "1.4.0"
-ril = { version = "0.10.1", features = ["png"] }
+pulldown-cmark = "0.10.0"
+ril = { features = [
+    "png",
+], git = "https://github.com/backwardspy/ril", branch = "fix/multi-font-textlayout" }
 serde = { version = "1.0.197", features = ["derive"] }
+serde_with = "3.7.0"
 tokio = { version = "1.36.0", features = ["rt-multi-thread"] }
 tracing-subscriber = "0.3.18"
 

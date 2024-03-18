@@ -17,7 +17,7 @@
         devShells.default = pkgs.mkShell {
           inputsFrom = [self'.packages.rust-afk];
           buildInputs = [pkgs.rust-analyzer pkgs.clippy pkgs.rustfmt];
-          env.RUSTC_SRC_PATH = "${pkgs.rustc}/lib/rustlib/src/rust/src";
+          env.RUST_SRC_PATH = pkgs.rust.packages.stable.rustPlatform.rustLibSrc;
         };
         packages = let
           src = pkgs.lib.cleanSource ./.;

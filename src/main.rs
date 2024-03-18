@@ -1,13 +1,18 @@
+mod fonts;
 mod image;
 
 use axum::{extract::Query, http::header, response::IntoResponse, routing::get, Router};
 use catppuccin::{ColorName, FlavorName};
-use serde::{de, Deserialize, Deserializer};
-use std::str::FromStr;
+use serde::Deserialize;
+use serde_with::{serde_as, DisplayFromStr};
 
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
+    lazy_static::initialize(&fonts::FONT_REGULAR);
+    lazy_static::initialize(&fonts::FONT_ITALIC);
+    lazy_static::initialize(&fonts::FONT_BOLD_REGULAR);
+    lazy_static::initialize(&fonts::FONT_BOLD_ITALIC);
 
     let app = Router::new().route("/", get(root)).route(
         "/style.css",
@@ -21,74 +26,30 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
+#[serde_as]
 #[derive(Debug, Deserialize)]
 struct Params {
     #[serde(default, rename = "t")]
     text: Option<String>,
-    #[serde(default, rename = "i", deserialize_with = "parse_bool")]
-    italic: bool,
-    #[serde(
-        default = "default_flavor",
-        rename = "f",
-        deserialize_with = "parse_flavor"
-    )]
-    flavor: Option<FlavorName>,
-    #[serde(
-        default = "default_color",
-        rename = "c",
-        deserialize_with = "parse_color"
-    )]
-    color: Option<ColorName>,
+    #[serde_as(as = "DisplayFromStr")]
+    #[serde(rename = "f", default = "default_flavor")]
+    flavor: FlavorName,
+    #[serde_as(as = "DisplayFromStr")]
+    #[serde(rename = "c", default = "default_color")]
+    color: ColorName,
 }
 
-#[allow(clippy::unnecessary_wraps)]
-const fn default_flavor() -> Option<FlavorName> {
-    Some(FlavorName::Frappe)
+const fn default_flavor() -> FlavorName {
+    FlavorName::Frappe
 }
 
-#[allow(clippy::unnecessary_wraps)]
-const fn default_color() -> Option<ColorName> {
-    Some(ColorName::Pink)
-}
-
-fn parse_bool<'de, D>(de: D) -> Result<bool, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let s = String::deserialize(de)?;
-    match s.as_str() {
-        "true" | "1" => Ok(true),
-        "false" | "0" => Ok(false),
-        _ => Err(de::Error::custom("expected true or false")),
-    }
-}
-
-fn parse_flavor<'de, D>(de: D) -> Result<Option<FlavorName>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let s = String::deserialize(de)?;
-    FlavorName::from_str(&s)
-        .map_err(de::Error::custom)
-        .map(Some)
-}
-
-fn parse_color<'de, D>(de: D) -> Result<Option<ColorName>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let s = String::deserialize(de)?;
-    ColorName::from_str(&s).map_err(de::Error::custom).map(Some)
+const fn default_color() -> ColorName {
+    ColorName::Pink
 }
 
 async fn root(Query(params): Query<Params>) -> axum::response::Result<impl IntoResponse> {
     if params.text.is_some() {
-        let img = crate::image::create(
-            params.text.unwrap().as_str(),
-            params.italic,
-            params.flavor.unwrap(),
-            params.color.unwrap(),
-        );
+        let img = crate::image::create(params.text.unwrap().as_str(), params.flavor, params.color);
 
         let mut write_buf = Vec::new();
         img.encode(ril::ImageFormat::Png, &mut write_buf).unwrap();
