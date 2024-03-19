@@ -37,13 +37,8 @@ pub fn create(text: &str, flavor: FlavorName, color: ColorName) -> Image<Rgba> {
                 _ => (),
             },
             Event::Text(text) => {
-                if codefence.is_some() {
-                    highlight(
-                        &mut layout,
-                        &codefence.unwrap(),
-                        &text.into_string(),
-                        flavor,
-                    );
+                if let Some(lang) = &codefence {
+                    highlight(&mut layout, lang, &text.into_string(), flavor);
                     codefence = None;
                 } else {
                     layout.push_basic_text(font.font, text, foreground);
@@ -82,7 +77,7 @@ pub fn create(text: &str, flavor: FlavorName, color: ColorName) -> Image<Rgba> {
     img
 }
 
-fn ctp_rgb_to_ril_rgba(flavor: FlavorName, color: ColorName) -> ril::Rgba {
+pub fn ctp_rgb_to_ril_rgba(flavor: FlavorName, color: ColorName) -> ril::Rgba {
     let rgb = PALETTE[flavor][color].rgb;
     Rgba {
         r: rgb.r,

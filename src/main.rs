@@ -4,16 +4,23 @@ mod image;
 
 use axum::{extract::Query, http::header, response::IntoResponse, routing::get, Router};
 use catppuccin::{ColorName, FlavorName};
+use lazy_static::initialize;
 use serde::Deserialize;
 use serde_with::{serde_as, DisplayFromStr};
 
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
-    lazy_static::initialize(&fonts::FONT_REGULAR);
-    lazy_static::initialize(&fonts::FONT_ITALIC);
-    lazy_static::initialize(&fonts::FONT_BOLD_REGULAR);
-    lazy_static::initialize(&fonts::FONT_BOLD_ITALIC);
+
+    // initialize all fonts and themes for a hot start
+    initialize(&fonts::FONT_REGULAR);
+    initialize(&fonts::FONT_ITALIC);
+    initialize(&fonts::FONT_BOLD_REGULAR);
+    initialize(&fonts::FONT_BOLD_ITALIC);
+    initialize(&highlight::TEXTMATE_MOCHA);
+    initialize(&highlight::TEXTMATE_MACCHIATO);
+    initialize(&highlight::TEXTMATE_FRAPPE);
+    initialize(&highlight::TEXTMATE_LATTE);
 
     let app = Router::new().route("/", get(root)).route(
         "/style.css",
