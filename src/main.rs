@@ -1,4 +1,5 @@
 mod fonts;
+mod highlight;
 mod image;
 
 use axum::{extract::Query, http::header, response::IntoResponse, routing::get, Router};

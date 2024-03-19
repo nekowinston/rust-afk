@@ -24,14 +24,13 @@ lazy_static! {
     )
     .unwrap();
 }
-
-pub struct AfkFont<'a> {
-    pub font: &'a Font,
+pub struct AfkFont {
+    pub font: &'static Font,
     italic: bool,
     bold: bool,
 }
 
-impl<'a> AfkFont<'a> {
+impl AfkFont {
     pub fn new() -> Self {
         Self {
             font: &FONT_REGULAR,
@@ -39,6 +38,7 @@ impl<'a> AfkFont<'a> {
             bold: false,
         }
     }
+
     pub fn set_italic(&mut self, italic: bool) {
         self.italic = italic;
         self.update_font();
@@ -64,8 +64,9 @@ impl<'a> AfkFont<'a> {
     }
 }
 
-impl std::fmt::Debug for AfkFont<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+#[allow(clippy::missing_fields_in_debug)]
+impl std::fmt::Debug for AfkFont {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.debug_struct("AfkFont")
             .field("italic", &self.italic)
             .field("bold", &self.bold)

@@ -1,4 +1,6 @@
 use crate::fonts::AfkFont;
+use crate::highlight::highlight;
+
 use catppuccin::{ColorName, FlavorName, PALETTE};
 use pulldown_cmark::{Event, Tag, TagEnd};
 use ril::{text::TextLayout, Draw, Image, Rgba};
@@ -21,14 +23,11 @@ pub fn create(text: &str, flavor: FlavorName, color: ColorName) -> Image<Rgba> {
     let mut codefence: Option<String> = None;
 
     for event in parser {
+        dbg!(&event);
         match event {
             Event::Start(tag) => match tag {
-                Tag::Emphasis => {
-                    font.set_italic(true);
-                }
-                Tag::Strong => {
-                    font.set_bold(true);
-                }
+                Tag::Emphasis => font.set_italic(true),
+                Tag::Strong => font.set_bold(true),
                 Tag::CodeBlock(kind) => {
                     if let pulldown_cmark::CodeBlockKind::Fenced(fence) = kind {
                         codefence = Some(fence.to_string());
@@ -38,12 +37,12 @@ pub fn create(text: &str, flavor: FlavorName, color: ColorName) -> Image<Rgba> {
                 _ => (),
             },
             Event::Text(text) => {
-                dbg!(&font, &text);
                 if codefence.is_some() {
-                    layout.push_basic_text(
-                        font.font,
-                        text,
-                        ctp_rgb_to_ril_rgba(flavor, ColorName::Text),
+                    highlight(
+                        &mut layout,
+                        &codefence.unwrap(),
+                        &text.into_string(),
+                        flavor,
                     );
                     codefence = None;
                 } else {
@@ -51,12 +50,9 @@ pub fn create(text: &str, flavor: FlavorName, color: ColorName) -> Image<Rgba> {
                 }
             }
             Event::End(tag) => match tag {
-                TagEnd::Emphasis => {
-                    font.set_italic(false);
-                }
-                TagEnd::Strong => {
-                    font.set_bold(false);
-                }
+                TagEnd::Emphasis => font.set_italic(false),
+                TagEnd::Strong => font.set_bold(false),
+                TagEnd::Paragraph => layout.push_basic_text(font.font, "\n", foreground),
                 _ => (),
             },
             Event::SoftBreak | Event::HardBreak => {

@@ -6,6 +6,7 @@
   <meta name="viewport"
     content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta name="darkreader-lock">
   <title>rust-afk</title>
   <link href="/style.css" rel="stylesheet" />
   <script defer src="//cdn.jsdelivr.net/npm/@alpinejs/persist@3.13/dist/cdn.min.js"></script>
@@ -33,11 +34,6 @@
       <img :src="imgSrc" class="mx-auto border-2 border-surface2" />
       <p>Generate your own AFK status image for Discord (or wherever)</p>
     </div>
-    <div class="flex gap-4 items-baseline">
-      <input x-model="italics" id="italicise" type="checkbox" class="bg-crust text-pink rounded" />
-      <label for="italicise">Italicise</label>
-    </div>
-    <div></div>
     <div class="flex justify-around">
       <div class="flex gap-4 items-baseline">
         <label for="color">Color</label>
